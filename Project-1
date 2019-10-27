@@ -1,0 +1,262 @@
+#include<stdio.h>
+#include<stdlib.h>
+#define MAX 10
+int count=0;   //for lane
+int w=0;  //for waiting list
+
+
+
+struct Node1{
+    int data1;
+    struct Node1 *next1;
+};
+
+struct Node1 *start1 =NULL;
+
+void insertAtEndWaitingList(int e){
+    struct Node1 *t;
+    t=(struct Node1 *)malloc(sizeof(struct Node1));
+    t->data1=e;
+    t->next1=NULL;
+    if(start1==NULL){
+        start1=t;
+        w++;
+    }
+    else{
+        struct Node1 *t1;
+        t1=start1;
+        while(t1->next1!=NULL){
+            t1=t1->next1;
+        }
+        t1->next1=t;
+        w++;
+    }
+}
+void deleteFromBeginWaitingList(){
+        struct Node1 *t;
+        t=start1;
+        start1=start1->next1;
+        free(t);
+        w--;
+}
+
+void pickupfromWaitingList(int e){
+    struct Node1 *t,*tl,*tr,*tc;
+    t=start1;
+    tl=start1;
+    tr=start1;
+    tc=start1;
+    while(tc->data1!=e){
+        tc=tc->next1;
+    }    
+    if(tc==start1){
+        deleteFromBeginWaitingList();
+    }
+    else{
+        while(t->data1!=e){
+            t=t->next1;
+        }
+        //printf("%d\n",t->data);
+        while(tl->next1!=t){
+            tl=tl->next1;
+        }
+        //printf("%d\n",tl->data);
+        tr=t->next1;
+        //printf("%d\n",tr->data);
+        free(t);
+        tl->next1=tr;
+        w--;
+    }
+}
+        
+void displayWaitingList(){
+    if (start1==NULL){
+        printf("\nWAITING LIST EMPTY!!!");
+    }
+    else{
+        printf("\nWAITING LIST: ");
+        struct Node1 *t;
+        t=start1;
+        do{
+            printf("%d ",t->data1);
+            t=t->next1;
+        }while(t!=NULL);
+    }
+    printf("\nTOTAL WAITING=%d",w);
+}
+
+
+
+
+struct Node{
+    int data;
+    struct Node *next;
+};
+
+struct Node *start =NULL;
+
+void deleteFromBegin(){
+        struct Node *t;
+        t=start;
+        start=start->next;
+        free(t);
+        count--;
+}
+void insertAtEnd(int e){
+    struct Node *t;
+    t=(struct Node *)malloc(sizeof(struct Node));
+    t->data=e;
+    t->next=NULL;
+    if(start==NULL){
+        start=t;
+        count++;
+        printf("\nLATEST ARRIVAL ::%d\n",t->data);
+    }
+    else{
+        if(count<MAX){
+            struct Node *t1;
+            t1=start;
+            while(t1->next!=NULL){
+                t1=t1->next;
+            }
+            t1->next=t;
+            count++;
+            printf("\nLATEST ARRIVAL ::%d\n",t->data);
+        }
+        else{
+            insertAtEndWaitingList(e);
+        }
+    }
+}
+
+void op(){
+    int option;
+    printf("ROOM AVAILABLE FOR %d\n",start1->data1);
+    printf("Want to move %d in the main lane?\n",start1->data1);
+    printf("1. Yes\n2. No\n");
+    printf("Enter choice: ");
+    scanf("%d",&option);
+    if(option==1){
+        insertAtEnd(start1->data1);
+        deleteFromBeginWaitingList();
+    }
+    else {
+        deleteFromBeginWaitingList();
+        if(w!=0){
+            op();
+        }
+    }
+}
+
+
+void pickup(int e){
+    struct Node *t,*tl,*tr,*tc;
+    t=start;
+    tl=start;
+    tr=start;
+    tc=start;
+    while(tc->data!=e){
+        tc=tc->next;
+    }    
+    if(tc==start){
+        printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+        deleteFromBegin();
+        printf("%d DEPARTED,MOVED 1 time\n",e);
+        if(w!=0){
+            op();
+        }
+    }
+    else{
+        int x=1;
+        while(t->data!=e){
+            t=t->next;
+            x++;
+        }
+        //printf("%d\n",t->data);
+        while(tl->next!=t){
+            tl=tl->next;
+        }
+        //printf("%d\n",tl->data);
+        tr=t->next;
+        //printf("%d\n",tr->data);
+        free(t);
+        tl->next=tr;
+        count--;
+        printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+        printf("%d DEPARTED,MOVED %d times\n",e,x);
+        if(w!=0){
+            op();
+           
+        }
+    }
+
+}
+        
+   
+void display(){
+    
+    printf("ROOM LEFT:%d\n",(MAX-count));
+    if (start==NULL){
+        printf("EVERY ROOM AVAILABLE");
+    }
+    else{
+        struct Node *t;
+        t=start;
+        do{
+            printf("%d ",t->data);
+            t=t->next;
+        }while(t!=NULL);
+        
+    }
+}
+
+void main()
+{
+   int value, choice;
+   while(1){
+      printf("\n***** MENU *****\n");
+      printf("1. Arrival\n2. Pickup\n3. Display Parking\n4. Depart from Waiting List\n5. Exit");
+      printf("\nEnter your choice: ");
+      scanf("%d",&choice);
+      switch(choice){
+	 case 1: printf("Enter license plate number: ");
+		 scanf("%d",&value);
+		 if(count<MAX){
+		     printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*");
+		     insertAtEnd(value);
+		     display();
+		     printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+		 }
+	     else{
+	         printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+	         insertAtEnd(value);
+		     display();
+		     displayWaitingList();
+		     printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+	     }
+         break;
+	 case 2:printf("Enter license plate number: ");
+	     scanf("%d",&value);
+	     pickup(value);
+	     display();
+	     displayWaitingList();
+	     printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+		 break;
+	 case 3: printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n"); 
+	     display();
+	     displayWaitingList();
+	     printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+		 break;
+     case 4: printf("Enter license plate number: ");
+         scanf("%d",&value);
+         printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n"); 
+         pickupfromWaitingList(value);
+         printf("Thanks for waiting!");
+         displayWaitingList();
+         printf("\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+         break;
+	 case 5: exit(0);
+	 default: printf("\nWrong selection!!! Try again!!!");
+      }
+      }
+}
